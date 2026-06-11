@@ -10,11 +10,11 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
 
-    <header class="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-10 shadow-sm">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <header class="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-10 shadow-sm w-full">
+        <div class="w-full flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <i data-lucide="calculator" class="w-7 h-7 text-indigo-600"></i>
-                <h1 class="text-xl font-bold tracking-tight text-slate-900">ComptaConverter <span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-full border border-indigo-100 ml-2">v1.7</span></h1>
+                <h1 class="text-xl font-bold tracking-tight text-slate-900">ComptaConverter <span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-full border border-indigo-100 ml-2">v1.8</span></h1>
             </div>
             <div class="text-sm text-slate-500 flex items-center gap-2">
                 <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i> Traitement 100% local
@@ -22,7 +22,7 @@
         </div>
     </header>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
+    <main class="flex-1 w-full p-4 md:p-6 space-y-6">
         
         <section class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
             <div class="flex items-center space-x-2 mb-6">
@@ -30,17 +30,17 @@
                 <h2 class="text-lg font-semibold text-slate-900">Chargement de la balance</h2>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
-                <div class="flex items-center justify-center p-2 border border-slate-100 bg-slate-50/50 rounded-xl h-full min-h-[160px]">
-                    <img src="jurassic_file_logo.png" alt="Jurassic Logo" class="max-h-36 w-auto object-contain rounded-lg shadow-2xs" onerror="this.parentElement.style.display='none'">
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-6 items-center">
+                <div class="flex items-center justify-center p-2 border border-slate-100 bg-slate-50/50 rounded-xl h-full min-h-[140px]">
+                    <img src="jurassic_file_logo.png" alt="Jurassic Logo" class="max-h-32 w-auto object-contain rounded-lg shadow-2xs" onerror="this.parentElement.style.display='none'">
                 </div>
                 
-                <div class="md:col-span-3 h-full">
-                    <div id="dropzone" class="border-2 border-dashed border-slate-300 hover:border-indigo-500 bg-slate-50 hover:bg-indigo-50/30 rounded-xl p-8 text-center cursor-pointer transition-all group flex flex-col justify-center h-full min-h-[160px]">
+                <div class="md:col-span-5 h-full">
+                    <div id="dropzone" class="border-2 border-dashed border-slate-300 hover:border-indigo-500 bg-slate-50 hover:bg-indigo-50/30 rounded-xl p-6 text-center cursor-pointer transition-all group flex flex-col justify-center h-full min-h-[140px]">
                         <input type="file" id="fileInput" accept=".xlsx, .xls" class="hidden">
-                        <div class="flex flex-col items-center space-y-3">
-                            <div class="p-2.5 bg-white rounded-full shadow-2xs group-hover:scale-110 transition-transform">
-                                <i data-lucide="file-spreadsheet" class="w-7 h-7 text-emerald-600"></i>
+                        <div class="flex flex-col items-center space-y-2">
+                            <div class="p-2 bg-white rounded-full shadow-2xs group-hover:scale-110 transition-transform">
+                                <i data-lucide="file-spreadsheet" class="w-6 h-6 text-emerald-600"></i>
                             </div>
                             <p class="text-sm font-medium text-slate-700">Glissez-déposez votre fichier Excel ici, ou <span class="text-indigo-600 font-semibold underline">parcourez vos fichiers</span></p>
                             <p class="text-xs text-slate-400">Formats supportés : .xlsx, .xls</p>
@@ -58,7 +58,7 @@
             </div>
         </section>
 
-        <div id="mappingAndPreview" class="hidden space-y-6">
+        <div id="mappingAndPreview" class="hidden space-y-6 w-full">
             
             <section class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-6">
                 <div class="flex items-center space-x-2 border-b border-slate-100 pb-3">
@@ -68,77 +68,130 @@
 
                 <div id="noHeaderAlert" class="hidden bg-blue-50 border border-blue-200 p-3 rounded-lg text-sm text-blue-800 flex items-center gap-2">
                     <i data-lucide="info" class="w-5 h-5 text-blue-600 shrink-0"></i>
-                    <span><strong>Aucune ligne d'en-tête détectée :</strong> Le fichier semble commencer directement par des chiffres. Des repères génériques (Colonne A, B, C...) ont été créés automatiquement pour vous permettre de faire le mapping.</span>
+                    <span><strong>Aucune ligne d'en-tête détectée :</strong> Repères génériques (Colonne A, B...) créés automatiquement. La première ligne du fichier a été conservée comme donnée utile.</span>
                 </div>
 
                 <div class="bg-amber-50/60 border border-amber-200 p-4 rounded-xl">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-amber-800 mb-3 flex items-center gap-1.5">
                         <i data-lucide="sliders-horizontal" class="w-4 h-4"></i> Paramètres du bloc d'en-tête (Header)
                     </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-start">
-                        <div>
-                            <label class="block text-xs font-medium text-slate-600 mb-1">Période (Format MMAA)</label>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+                        <div class="md:col-span-2 min-w-[130px]">
+                            <label class="block text-xs font-medium text-slate-600 mb-1 truncate">Période (Format MMAA)</label>
                             <input type="text" id="paramPeriode" placeholder="ex: 0526" maxlength="4" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500 font-mono uppercase transition-colors">
                             <span class="text-[10px] text-slate-400 block mt-0.5">Ex: 0526 (Mai 2026)</span>
                         </div>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-600 mb-1">Code Site (1 Lettre + 5 Chiffres)</label>
+                        <div class="md:col-span-2 min-w-[150px]">
+                            <label class="block text-xs font-medium text-slate-600 mb-1 truncate">Code Site (1L + 5C)</label>
                             <input type="text" id="paramCodeBm" placeholder="ex: K12456" maxlength="6" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500 font-mono uppercase transition-colors">
                             <span class="text-[10px] text-slate-400 block mt-0.5">Ex: K12456</span>
                         </div>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-600 mb-1">Largeur fixe "Compte"</label>
+                        <div class="md:col-span-2 min-w-[130px]">
+                            <label class="block text-xs font-medium text-slate-600 mb-1 truncate">Largeur "Compte"</label>
                             <input type="number" id="fixedWidth" value="20" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500 font-mono">
-                            <span class="text-[10px] text-slate-400 block mt-2">Nombre de caractères max</span>
+                            <span class="text-[10px] text-slate-400 block mt-0.5">Caractères max</span>
                         </div>
-                        <div class="flex flex-col h-full justify-between">
+                        <div class="md:col-span-3 flex flex-col h-full justify-between border-l border-amber-200 pl-4">
                             <label class="block text-xs font-medium text-slate-600 mb-2">Séparateur décimal généré</label>
-                            <div class="flex items-center space-x-3 mt-1.5">
+                            <div class="flex items-center space-x-3 mt-1">
                                 <span id="labelComma" class="text-xs font-bold text-indigo-600">Virgule ( , )</span>
-                                <button type="button" id="toggleDecimal" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-indigo-600 transition-colors duration-200 ease-in-out focus:outline-none" role="switch" aria-checked="false">
-                                    <span id="toggleKnob" aria-hidden="true" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out translate-x-0"></span>
+                                <button type="button" id="toggleDecimal" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-indigo-600 transition-colors duration-200 ease-in-out focus:outline-none">
+                                    <span id="toggleKnob" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition duration-200 ease-in-out translate-x-0"></span>
                                 </button>
                                 <span id="labelPoint" class="text-xs font-medium text-slate-400">Point ( . )</span>
                             </div>
-                            <span class="text-[10px] text-slate-400 block mt-2">Impacte l'en-tête et les montants</span>
+                            <span class="text-[10px] text-slate-400 block mt-1.5">Pour l'en-tête et les montants</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Colonne N° de Compte</label>
-                        <select id="colAccount" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500"></select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Colonne Libellé</label>
-                        <select id="colLabel" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500"></select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Colonne Montant</label>
-                        <select id="colAmount" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500"></select>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200 pb-2">Correspondance des données</h3>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">N° de Compte</label>
+                                <button type="button" id="btnToggleConcat" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer">
+                                    <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> <span id="textConcatBtn">Fusionner 2 colonnes</span>
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="grid grid-cols-1 gap-2" id="accountSelectorsContainer">
+                                    <select id="colAccount" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500"></select>
+                                    <div id="concatBlock" class="hidden space-y-2 pt-1 border-t border-dashed border-slate-200">
+                                        <label class="block text-[11px] font-medium text-slate-500">Deuxième colonne à fusionner :</label>
+                                        <select id="colAccount2" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500"></select>
+                                        <div class="flex items-center space-x-2">
+                                            <label class="text-[10px] font-medium text-slate-400">Séparateur (optionnel) :</label>
+                                            <input type="text" id="concatSeparator" placeholder="Ex: aucun, tiret..." class="bg-white border border-slate-300 rounded px-2 py-0.5 text-xs font-mono w-16 text-center">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 flex flex-col justify-between">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-3">Libellé du compte</label>
+                                <select id="colLabel" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500"></select>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-2">Sert à la génération du fichier Plan de Comptes.</p>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Montant / Solde</label>
+                                <div class="inline-flex rounded-md shadow-xs bg-slate-100 p-0.5 border border-slate-200">
+                                    <button type="button" id="modeSimpleBtn" class="bg-white text-slate-800 text-[11px] font-semibold px-2.5 py-1 rounded-md shadow-2xs border border-slate-200/50 cursor-pointer">Simple</button>
+                                    <button type="button" id="modeCalculBtn" class="text-slate-500 hover:text-slate-800 text-[11px] font-medium px-2.5 py-1 rounded-md cursor-pointer">Débit / Crédit</button>
+                                </div>
+                            </div>
+                            
+                            <div id="amountSimpleGroup">
+                                <select id="colAmount" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500"></select>
+                            </div>
+
+                            <div id="amountCalculGroup" class="hidden space-y-2">
+                                <div class="flex items-center space-x-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                                    <div class="w-full">
+                                        <span class="text-[10px] font-bold text-emerald-700 block mb-1">COLONNE DÉBIT (+)</span>
+                                        <select id="colDebit" class="w-full bg-white border border-slate-300 rounded px-2 py-1 text-xs focus:outline-indigo-500"></select>
+                                    </div>
+                                    <span class="font-bold text-slate-400 text-lg pt-4">—</span>
+                                    <div class="w-full">
+                                        <span class="text-[10px] font-bold text-rose-700 block mb-1">COLONNE CRÉDIT (—)</span>
+                                        <select id="colCredit" class="w-full bg-white border border-slate-300 rounded px-2 py-1 text-xs focus:outline-indigo-500"></select>
+                                    </div>
+                                </div>
+                                <p class="text-[10px] text-slate-400">Calcule dynamiquement : <code class="font-mono bg-slate-100 px-1 rounded text-slate-600">Débit - Crédit</code> pour chaque ligne.</p>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </section>
 
-            <section class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
+            <section class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs w-full">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-2">
                         <i data-lucide="eye" class="w-5 h-5 text-indigo-600"></i>
                         <h2 class="text-lg font-semibold text-slate-900">Aperçu du Excel chargé (10 1ères lignes)</h2>
                     </div>
                 </div>
-                <div class="overflow-x-auto border border-slate-200 rounded-lg">
-                    <table class="w-full text-left border-collapse text-sm">
+                <div class="overflow-x-auto border border-slate-200 rounded-lg w-full">
+                    <table class="w-full text-left border-collapse text-sm min-w-full">
                         <thead>
-                            <tr id="tableHeader" class="bg-slate-100 border-b border-slate-200 text-slate-700 font-medium"></tr>
+                            <tr id="tableHeader" class="bg-slate-100 border-b border-slate-200 text-slate-700 font-medium whitespace-nowrap"></tr>
                         </thead>
-                        <tbody id="tableBody" class="divide-y divide-slate-100 text-slate-600"></tbody>
+                        <tbody id="tableBody" class="divide-y divide-slate-100 text-slate-600 whitespace-nowrap"></tbody>
                     </table>
                 </div>
             </section>
 
-            <section class="bg-slate-900 text-white p-6 rounded-xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
+            <section class="bg-slate-900 text-white p-6 rounded-xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
                 <div class="space-y-1 text-center sm:text-left">
                     <h2 class="text-lg font-bold flex items-center justify-center sm:justify-start gap-2">
                         <i data-lucide="package-open" class="text-amber-400 w-5 h-5"></i> Prêt pour l'exportation
@@ -158,14 +211,13 @@
         </div>
     </main>
 
-    <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-400 mt-12">
+    <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-400 w-full">
         Générateur de Fichiers Comptables à Largeur Fixe — Conçu pour un usage local rapide.
     </footer>
 
     <script>
         lucide.createIcons();
 
-        // Regex de validation
         const regexPeriode = /^(0[1-9]|1[0-2])[0-9]{2}$/; 
         const regexCodeBm = /^[A-Z][0-9]{5}$/;           
 
@@ -181,17 +233,32 @@
         const paramCodeBm = document.getElementById('paramCodeBm');
         const fixedWidthInput = document.getElementById('fixedWidth');
         
-        // Eléments du Toggle Décimal
         const toggleDecimal = document.getElementById('toggleDecimal');
         const toggleKnob = document.getElementById('toggleKnob');
         const labelComma = document.getElementById('labelComma');
         const labelPoint = document.getElementById('labelPoint');
         let usePointDecimal = false; 
 
+        // DOM Mapping & Options Avancées
         const colAccount = document.getElementById('colAccount');
+        const colAccount2 = document.getElementById('colAccount2');
+        const concatBlock = document.getElementById('concatBlock');
+        const btnToggleConcat = document.getElementById('btnToggleConcat');
+        const textConcatBtn = document.getElementById('textConcatBtn');
+        const concatSeparator = document.getElementById('concatSeparator');
+        let isConcatActive = false;
+
         const colLabel = document.getElementById('colLabel');
-        const colAmount = document.getElementById('colAmount');
         
+        const colAmount = document.getElementById('colAmount');
+        const colDebit = document.getElementById('colDebit');
+        const colCredit = document.getElementById('colCredit');
+        const modeSimpleBtn = document.getElementById('modeSimpleBtn');
+        const modeCalculBtn = document.getElementById('modeCalculBtn');
+        const amountSimpleGroup = document.getElementById('amountSimpleGroup');
+        const amountCalculGroup = document.getElementById('amountCalculGroup');
+        let isAmountCalculMode = false;
+
         const tableHeader = document.getElementById('tableHeader');
         const tableBody = document.getElementById('tableBody');
         
@@ -201,35 +268,65 @@
         let headers = [];
         let globalData = [];
 
-        // Gestion du Toggle Décimal
+        // Toggle Décimal
         toggleDecimal.addEventListener('click', () => {
             usePointDecimal = !usePointDecimal;
             if (usePointDecimal) {
                 toggleDecimal.classList.replace('bg-indigo-600', 'bg-slate-400');
                 toggleKnob.classList.replace('translate-x-0', 'translate-x-5');
-                labelComma.classList.replace('font-bold', 'font-medium');
-                labelComma.classList.replace('text-indigo-600', 'text-slate-400');
-                labelPoint.classList.replace('font-medium', 'font-bold');
-                labelPoint.classList.replace('text-slate-400', 'text-indigo-600');
+                labelComma.classList.replace('font-bold', 'font-medium').replace('text-indigo-600', 'text-slate-400');
+                labelPoint.classList.replace('font-medium', 'font-bold').replace('text-slate-400', 'text-indigo-600');
             } else {
                 toggleDecimal.classList.replace('bg-slate-400', 'bg-indigo-600');
                 toggleKnob.classList.replace('translate-x-5', 'translate-x-0');
-                labelPoint.classList.replace('font-bold', 'font-medium');
-                labelPoint.classList.replace('text-indigo-600', 'text-slate-400');
-                labelComma.classList.replace('font-medium', 'font-bold');
-                labelComma.classList.replace('text-slate-400', 'text-indigo-600');
+                labelPoint.classList.replace('font-bold', 'font-medium').replace('text-indigo-600', 'text-slate-400');
+                labelComma.classList.replace('font-medium', 'font-bold').replace('text-slate-400', 'text-indigo-600');
             }
         });
 
-        // Validations
+        // Gestion Option Concaténation Compte
+        btnToggleConcat.addEventListener('click', () => {
+            isConcatActive = !isConcatActive;
+            if (isConcatActive) {
+                concatBlock.classList.remove('hidden');
+                textConcatBtn.textContent = "Retirer la fusion";
+                btnToggleConcat.classList.replace('text-indigo-600', 'text-rose-600');
+            } else {
+                concatBlock.classList.add('hidden');
+                textConcatBtn.textContent = "Fusionner 2 colonnes";
+                btnToggleConcat.classList.replace('text-rose-600', 'text-indigo-600');
+            }
+            lucide.createIcons();
+        });
+
+        // Gestion Mode Montant (Simple vs Débit/Crédit)
+        modeSimpleBtn.addEventListener('click', () => {
+            isAmountCalculMode = false;
+            amountSimpleGroup.classList.remove('hidden');
+            amountCalculGroup.classList.add('hidden');
+            
+            modeSimpleBtn.className = "bg-white text-slate-800 text-[11px] font-semibold px-2.5 py-1 rounded-md shadow-2xs border border-slate-200/50 cursor-pointer";
+            modeCalculBtn.className = "text-slate-500 hover:text-slate-800 text-[11px] font-medium px-2.5 py-1 rounded-md cursor-pointer";
+        });
+
+        modeCalculBtn.addEventListener('click', () => {
+            isAmountCalculMode = true;
+            amountSimpleGroup.classList.add('hidden');
+            amountCalculGroup.classList.remove('hidden');
+            
+            modeCalculBtn.className = "bg-white text-slate-800 text-[11px] font-semibold px-2.5 py-1 rounded-md shadow-2xs border border-slate-200/50 cursor-pointer";
+            modeSimpleBtn.className = "text-slate-500 hover:text-slate-800 text-[11px] font-medium px-2.5 py-1 rounded-md cursor-pointer";
+        });
+
+        // Validations Fields
         paramPeriode.addEventListener('blur', () => {
             const value = paramPeriode.value.trim().toUpperCase();
             paramPeriode.value = value;
             if (value && !regexPeriode.test(value)) {
-                alert("Format Période Incorrect !\n\nLa période doit être au format MMAA (ex: '0526').");
-                paramPeriode.classList.add('border-rose-500', 'bg-rose-50', 'text-rose-900');
+                alert("Format Période Incorrect !\n\nUtiliser le format MMAA (ex: '0526').");
+                paramPeriode.classList.add('border-rose-500', 'bg-rose-50');
             } else {
-                paramPeriode.classList.remove('border-rose-500', 'bg-rose-50', 'text-rose-900');
+                paramPeriode.classList.remove('border-rose-500', 'bg-rose-50');
             }
         });
 
@@ -237,102 +334,66 @@
             const value = paramCodeBm.value.trim().toUpperCase();
             paramCodeBm.value = value;
             if (value && !regexCodeBm.test(value)) {
-                alert("Format Code Site Incorrect !\n\nLe Code Site doit comporter une lettre majuscule suivie de 5 chiffres (ex: 'K12458').");
-                paramCodeBm.classList.add('border-rose-500', 'bg-rose-50', 'text-rose-900');
+                alert("Format Code Site Incorrect !\n\nDoit comporter une lettre majuscule et 5 chiffres (ex: 'K12458').");
+                paramCodeBm.classList.add('border-rose-500', 'bg-rose-50');
             } else {
-                paramCodeBm.classList.remove('border-rose-500', 'bg-rose-50', 'text-rose-900');
+                paramCodeBm.classList.remove('border-rose-500', 'bg-rose-50');
             }
         });
 
         function validateInputsBeforeExport() {
             const periode = paramPeriode.value.trim().toUpperCase();
             const codeBm = paramCodeBm.value.trim().toUpperCase();
-
-            if (!periode || !codeBm) {
-                alert("Champs Obligatoires Manquants !\n\nLa Période ET le Code Site doivent être renseignés.");
+            if (!periode || !codeBm || !regexPeriode.test(periode) || !regexCodeBm.test(codeBm)) {
+                alert("Erreur ou omission dans les paramètres (Période / Code Site). Merci de vérifier.");
                 return false;
             }
-
-            if (!regexPeriode.test(periode) || !regexCodeBm.test(codeBm)) {
-                alert("Erreur de Format !\n\nMerci de corriger les champs en rouge avant l'exportation.");
-                return false;
-            }
-
             return { periode, codeBm };
         }
 
         dropzone.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', handleFileSelect);
-        
         dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('border-indigo-500', 'bg-indigo-50/50'); });
         dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('border-indigo-500', 'bg-indigo-50/50'); });
         dropzone.addEventListener('drop', (e) => {
             e.preventDefault();
-            dropzone.classList.remove('border-indigo-500', 'bg-indigo-50/50');
-            if (e.dataTransfer.files.length > 0) {
-                fileInput.files = e.dataTransfer.files;
-                handleFileSelect();
-            }
+            if (e.dataTransfer.files.length > 0) { fileInput.files = e.dataTransfer.files; handleFileSelect(); }
         });
-
         resetBtn.addEventListener('click', resetApp);
 
-        // Convertit un index de colonne (0, 1, 2...) en lettre Excel (A, B, C... AA, AB...)
         function getExcelColumnLabel(index) {
-            let label = "";
-            let temp = index;
-            while (temp >= 0) {
-                label = String.fromCharCode((temp % 26) + 65) + label;
-                temp = Math.floor(temp / 26) - 1;
-            }
+            let label = ""; let temp = index;
+            while (temp >= 0) { label = String.fromCharCode((temp % 26) + 65) + label; temp = Math.floor(temp / 26) - 1; }
             return `Colonne ${label}`;
         }
 
         function handleFileSelect() {
-            const file = fileInput.files[0];
-            if (!file) return;
-
+            const file = fileInput.files[0]; if (!file) return;
             fileName.textContent = `${file.name} (${(file.size/1024).toFixed(1)} KB)`;
-            dropzone.classList.add('hidden');
-            fileInfo.classList.remove('hidden');
+            dropzone.classList.add('hidden'); fileInfo.classList.remove('hidden');
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, { type: 'array', defval: "" });
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
-                
-                if (jsonData.length === 0) {
-                    alert("Le fichier Excel semble vide.");
-                    resetApp();
-                    return;
-                }
+                if (jsonData.length === 0) { alert("Excel vide."); resetApp(); return; }
 
                 let firstRow = jsonData[0];
-                
-                // --- ALGORITHME DE DÉTECTION D'ENTÊTE ---
-                // On regarde si la première ligne contient des valeurs qui ressemblent fort à des données pures.
                 let missingHeaderDetected = false;
-                
                 for (let i = 0; i < Math.min(firstRow.length, 3); i++) {
                     const cellVal = (firstRow[i] || "").toString().trim();
-                    // Si la cellule est un grand nombre (ex: compte 101300) ou contient des décimales comptables d'entrée, c'est de la donnée !
                     if (cellVal !== "" && !isNaN(cellVal.replace(',', '.')) && cellVal.replace(/\s/g, '').length >= 4) {
-                        missingHeaderDetected = true;
-                        break;
+                        missingHeaderDetected = true; break;
                     }
                 }
 
                 if (missingHeaderDetected) {
-                    // Pas d'en-tête ! On fabrique des en-têtes virtuelles [Colonne A, Colonne B...]
                     headers = firstRow.map((_, idx) => getExcelColumnLabel(idx));
-                    // Très important : La première ligne est une vraie donnée, on ne l'élimine pas !
-                    globalData = jsonData; 
+                    globalData = jsonData;
                     noHeaderAlert.classList.remove('hidden');
                 } else {
-                    // En-tête classique présente
                     headers = firstRow.map((h, idx) => h ? h.toString().trim() : getExcelColumnLabel(idx));
                     globalData = jsonData.slice(1);
                     noHeaderAlert.classList.add('hidden');
@@ -340,7 +401,6 @@
 
                 populateSelects(headers, missingHeaderDetected);
                 renderPreview(headers, globalData.slice(0, 10));
-                
                 mappingAndPreview.classList.remove('hidden');
                 lucide.createIcons();
             };
@@ -349,22 +409,26 @@
 
         function populateSelects(headersList, missingHeaderDetected) {
             const optionsHtml = headersList.map((h, idx) => `<option value="${idx}">${h}</option>`).join('');
+            
             colAccount.innerHTML = optionsHtml;
+            colAccount2.innerHTML = optionsHtml;
             colLabel.innerHTML = optionsHtml;
             colAmount.innerHTML = optionsHtml;
+            colDebit.innerHTML = optionsHtml;
+            colCredit.innerHTML = optionsHtml;
 
-            // Si les en-têtes sont réelles, on tente le pré-positionnement intelligent
             if (!missingHeaderDetected) {
                 headersList.forEach((h, idx) => {
                     const title = h.toLowerCase();
-                    if (title.includes('compte') || title.includes('n°') || title.includes('general')) colAccount.value = idx;
-                    if (title.includes('libellé') || title.includes('libelle') || title.includes('intitulé')) colLabel.value = idx;
-                    if (title.includes('solde') || title.includes('montant') || title.includes('debit') || title.includes('crédit')) colAmount.value = idx;
+                    if (title.includes('compte') || title.includes('n°')) { colAccount.value = idx; colAccount2.value = idx; }
+                    if (title.includes('libellé') || title.includes('libelle')) colLabel.value = idx;
+                    if (title.includes('solde') || title.includes('montant')) colAmount.value = idx;
+                    if (title.includes('debit')) colDebit.value = idx;
+                    if (title.includes('credit')) colCredit.value = idx;
                 });
             } else {
-                // S'il n'y a pas d'en-tête, on initialise arbitrairement sur les colonnes A, B, C (index 0, 1, 2) s'il y en a assez
-                if (headersList.length > 0) colAccount.value = 0;
-                if (headersList.length > 1) colLabel.value = 1;
+                if (headersList.length > 0) { colAccount.value = 0; colAccount2.value = 0; colDebit.value = 0; }
+                if (headersList.length > 1) { colLabel.value = 1; colCredit.value = 1; }
                 if (headersList.length > 2) colAmount.value = 2;
             }
         }
@@ -380,107 +444,94 @@
 
         function formatFixedLength(text, length) {
             const str = (text !== undefined && text !== null) ? text.toString() : "";
-            if (str.length >= length) {
-                return str.substring(0, length);
+            return str.length >= length ? str.substring(0, length) : str.padEnd(length, " ");
+        }
+
+        // Nettoie de manière robuste une valeur numérique isolée
+        function cleanSingleValueToFloat(rawVal) {
+            if (rawVal === undefined || rawVal === null) return 0;
+            let str = rawVal.toString().trim();
+            if (!str) return 0;
+            if (str.includes(',') && str.includes('.')) {
+                str = str.indexOf(',') < str.indexOf('.') ? str.replace(/,/g, '') : str.replace(/\./g, '').replace(',', '.');
+            } else {
+                str = str.replace(/\s/g, '').replace(',', '.');
             }
-            return str.padEnd(length, " ");
+            let n = parseFloat(str);
+            return isNaN(n) ? 0 : n;
         }
 
         function parseAndCleanAmount(rawVal, targetDecimalSeparator) {
-            if (rawVal === undefined || rawVal === null) return "0" + targetDecimalSeparator + "00";
-            
-            let str = rawVal.toString().trim();
-            if (!str) return "0" + targetDecimalSeparator + "00";
-
-            if (str.includes(',') && str.includes('.')) {
-                if (str.indexOf(',') < str.indexOf('.')) {
-                    str = str.replace(/,/g, '');
-                } else {
-                    str = str.replace(/\./g, '').replace(',', '.');
-                }
-            } else {
-                str = str.replace(/\s/g, ''); 
-            }
-
-            let standardStr = str.replace(',', '.');
-            let num = parseFloat(standardStr);
-            if (isNaN(num)) return "0" + targetDecimalSeparator + "00";
-
+            let num = cleanSingleValueToFloat(rawVal);
             let fixedStr = num.toFixed(2); 
-
-            if (targetDecimalSeparator === ',') {
-                fixedStr = fixedStr.replace('.', ',');
-            }
+            if (targetDecimalSeparator === ',') fixedStr = fixedStr.replace('.', ',');
             return fixedStr;
         }
 
-        // Export du fichier Montants
+        // Export Fichier Montants
         btnExportTxt.addEventListener('click', () => {
-            const validParams = validateInputsBeforeExport();
-            if (!validParams) return;
-
+            const validParams = validateInputsBeforeExport(); if (!validParams) return;
             const { periode, codeBm } = validParams;
+            
             const accIdx = parseInt(colAccount.value);
-            const amtIdx = parseInt(colAmount.value);
+            const accIdx2 = parseInt(colAccount2.value);
+            const labelIdx = parseInt(colLabel.value);
+            const amtSimpleIdx = parseInt(colAmount.value);
+            const debIdx = parseInt(colDebit.value);
+            const credIdx = parseInt(colCredit.value);
             const width = parseInt(fixedWidthInput.value) || 20;
-            
             const targetDecimal = usePointDecimal ? "." : ",";
+            const sep = concatSeparator.value;
 
-            // Analyse de la cohérence
-            let pointCount = 0;
-            let commaCount = 0;
-            
-            globalData.forEach(row => {
-                const val = (row[amtIdx] || "").toString();
-                if (val.includes('.')) pointCount++;
-                if (val.includes(',')) commaCount++;
-            });
-
-            const sourceUsesPoint = (pointCount > commaCount);
-            
-            if (sourceUsesPoint && targetDecimal === ',') {
-                alert(`Information sur les montants :\n\nLa balance source semble utiliser le POINT comme séparateur décimal.\nLe choix pour le fichier généré est la VIRGULE.\n\nTous les montants vont être convertis automatiquement.`);
-            } else if (!sourceUsesPoint && commaCount > 0 && targetDecimal === '.') {
-                alert(`Information sur les montants :\n\nLa balance source semble utiliser la VIRGULE comme séparateur décimal.\nLe choix pour le fichier généré est le POINT.\n\nTous les montants vont être convertis automatiquement.`);
-            }
-
-            let outputContent = "";
-            outputContent += `AA${codeBm}F${periode} ${targetDecimal}${width}EUR\n`;
+            let outputContent = `AA${codeBm}F${periode} ${targetDecimal}${width}EUR\n`;
 
             globalData.forEach(row => {
-                const account = (row[accIdx] || "").toString().trim();
-                let rawAmount = row[amtIdx];
-
+                // 1. Logique de Concaténation de Compte
+                let account = (row[accIdx] || "").toString().trim();
+                if (isConcatActive && accIdx !== accIdx2) {
+                    let secondPart = (row[accIdx2] || "").toString().trim();
+                    if (secondPart) account += sep + secondPart;
+                }
                 if (!account) return; 
-                
+
+                // 2. Logique de Calcul du Montant (Simple vs Débit/Crédit)
+                let finalAmountRaw = 0;
+                if (!isAmountCalculMode) {
+                    finalAmountRaw = row[amtSimpleIdx];
+                } else {
+                    let d = cleanSingleValueToFloat(row[debIdx]);
+                    let c = cleanSingleValueToFloat(row[credIdx]);
+                    finalAmountRaw = d - c; // Formule comptable standard
+                }
+
                 const partAccount = formatFixedLength(account, width);
-                const formattedAmount = parseAndCleanAmount(rawAmount, targetDecimal);
-                
+                const formattedAmount = parseAndCleanAmount(finalAmountRaw, targetDecimal);
                 outputContent += `${partAccount}${formattedAmount}\n`;
             });
 
             outputContent += `XX${codeBm}F${periode}`;
-
             downloadBlob(outputContent, `balance_montants_${periode}.txt`, "text/plain");
         });
 
-        // Export du Plan de Comptes
+        // Export Plan de Comptes
         btnExportPlan.addEventListener('click', () => {
-            const validParams = validateInputsBeforeExport();
-            if (!validParams) return;
-
+            const validParams = validateInputsBeforeExport(); if (!validParams) return;
             const { periode } = validParams;
             const accIdx = parseInt(colAccount.value);
+            const accIdx2 = parseInt(colAccount2.value);
             const lblIdx = parseInt(colLabel.value);
             const width = parseInt(fixedWidthInput.value) || 20;
+            const sep = concatSeparator.value;
 
-            let outputContent = "";
-            outputContent += `INFO:SEPARATEUR:${width}\n`;
+            let outputContent = `INFO:SEPARATEUR:${width}\n`;
 
             globalData.forEach(row => {
-                const account = (row[accIdx] || "").toString().trim();
+                let account = (row[accIdx] || "").toString().trim();
+                if (isConcatActive && accIdx !== accIdx2) {
+                    let secondPart = (row[accIdx2] || "").toString().trim();
+                    if (secondPart) account += sep + secondPart;
+                }
                 const label = (row[lblIdx] || "").toString().trim();
-
                 if (!account) return;
 
                 const partAccount = formatFixedLength(account, width);
@@ -494,22 +545,12 @@
             const blob = new Blob([content], { type: contentType + ";charset=utf-8;" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            a.href = url; a.download = filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         }
 
         function resetApp() {
-            fileInput.value = "";
-            headers = [];
-            globalData = [];
-            dropzone.classList.remove('hidden');
-            fileInfo.classList.add('hidden');
-            mappingAndPreview.classList.add('hidden');
-            noHeaderAlert.classList.add('hidden');
+            fileInput.value = ""; headers = []; globalData = [];
+            dropzone.classList.remove('hidden'); fileInfo.classList.add('hidden'); mappingAndPreview.classList.add('hidden'); noHeaderAlert.classList.add('hidden');
         }
     </script>
 </body>
