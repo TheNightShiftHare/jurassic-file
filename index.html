@@ -14,7 +14,7 @@
         <div class="w-full flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <i data-lucide="calculator" class="w-7 h-7 text-indigo-600"></i>
-                <h1 class="text-xl font-bold tracking-tight text-slate-900">ComptaConverter <span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-full border border-indigo-100 ml-2">v1.8</span></h1>
+                <h1 class="text-xl font-bold tracking-tight text-slate-900">ComptaConverter <span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-full border border-indigo-100 ml-2">v1.9</span></h1>
             </div>
             <div class="text-sm text-slate-500 flex items-center gap-2">
                 <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i> Traitement 100% local
@@ -87,11 +87,16 @@
                             <input type="text" id="paramCodeBm" placeholder="ex: K12456" maxlength="6" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500 font-mono uppercase transition-colors">
                             <span class="text-[10px] text-slate-400 block mt-0.5">Ex: K12456</span>
                         </div>
-                        <div class="md:col-span-2 min-w-[130px]">
-                            <label class="block text-xs font-medium text-slate-600 mb-1 truncate">Largeur "Compte"</label>
+                        
+                        <div class="md:col-span-3 min-w-[200px]">
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-medium text-slate-600 truncate">Largeur "Compte"</label>
+                                <span id="accountLenBadge" class="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-slate-200 text-slate-700 transition-colors">Max source: --</span>
+                            </div>
                             <input type="number" id="fixedWidth" value="20" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500 font-mono">
-                            <span class="text-[10px] text-slate-400 block mt-0.5">Caractères max</span>
+                            <span class="text-[10px] text-slate-400 block mt-0.5">Nb. caractères max dans le fichier final</span>
                         </div>
+
                         <div class="md:col-span-3 flex flex-col h-full justify-between border-l border-amber-200 pl-4">
                             <label class="block text-xs font-medium text-slate-600 mb-2">Séparateur décimal généré</label>
                             <div class="flex items-center space-x-3 mt-1">
@@ -166,7 +171,7 @@
                                         <select id="colCredit" class="w-full bg-white border border-slate-300 rounded px-2 py-1 text-xs focus:outline-indigo-500"></select>
                                     </div>
                                 </div>
-                                <p class="text-[10px] text-slate-400">Calcule dynamiquement : <code class="font-mono bg-slate-100 px-1 rounded text-slate-600">Débit - Crédit</code> pour chaque ligne.</p>
+                                <p class="text-[10px] text-slate-400">Calcule dynamiquement : <code class="font-mono bg-slate-100 px-1 rounded text-slate-600">Débit - Crédit</code>.</p>
                             </div>
                         </div>
 
@@ -178,7 +183,7 @@
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-2">
                         <i data-lucide="eye" class="w-5 h-5 text-indigo-600"></i>
-                        <h2 class="text-lg font-semibold text-slate-900">Aperçu du Excel chargé (10 1ères lignes)</h2>
+                        <h2 class="text-lg font-semibold text-slate-900">Aperçu de la balance (<span class="text-indigo-600 font-bold">Début & Fin du fichier</span>)</h2>
                     </div>
                 </div>
                 <div class="overflow-x-auto border border-slate-200 rounded-lg w-full">
@@ -232,6 +237,7 @@
         const paramPeriode = document.getElementById('paramPeriode');
         const paramCodeBm = document.getElementById('paramCodeBm');
         const fixedWidthInput = document.getElementById('fixedWidth');
+        const accountLenBadge = document.getElementById('accountLenBadge');
         
         const toggleDecimal = document.getElementById('toggleDecimal');
         const toggleKnob = document.getElementById('toggleKnob');
@@ -239,7 +245,7 @@
         const labelPoint = document.getElementById('labelPoint');
         let usePointDecimal = false; 
 
-        // DOM Mapping & Options Avancées
+        // DOM Mapping
         const colAccount = document.getElementById('colAccount');
         const colAccount2 = document.getElementById('colAccount2');
         const concatBlock = document.getElementById('concatBlock');
@@ -249,7 +255,6 @@
         let isConcatActive = false;
 
         const colLabel = document.getElementById('colLabel');
-        
         const colAmount = document.getElementById('colAmount');
         const colDebit = document.getElementById('colDebit');
         const colCredit = document.getElementById('colCredit');
@@ -284,7 +289,7 @@
             }
         });
 
-        // Gestion Option Concaténation Compte
+        // Toggle Concaténation
         btnToggleConcat.addEventListener('click', () => {
             isConcatActive = !isConcatActive;
             if (isConcatActive) {
@@ -296,27 +301,39 @@
                 textConcatBtn.textContent = "Fusionner 2 colonnes";
                 btnToggleConcat.classList.replace('text-rose-600', 'text-indigo-600');
             }
+            analyzeAccountLengths();
+            renderHeadAndTailPreview();
             lucide.createIcons();
         });
 
-        // Gestion Mode Montant (Simple vs Débit/Crédit)
+        // Changement de colonne -> recalcul dynamique des longueurs
+        colAccount.addEventListener('change', () => { analyzeAccountLengths(); renderHeadAndTailPreview(); });
+        colAccount2.addEventListener('change', () => { if(isConcatActive) { analyzeAccountLengths(); renderHeadAndTailPreview(); } });
+        concatSeparator.addEventListener('input', () => { if(isConcatActive) { analyzeAccountLengths(); renderHeadAndTailPreview(); } });
+
+        // Modes Montant
         modeSimpleBtn.addEventListener('click', () => {
             isAmountCalculMode = false;
             amountSimpleGroup.classList.remove('hidden');
             amountCalculGroup.classList.add('hidden');
-            
             modeSimpleBtn.className = "bg-white text-slate-800 text-[11px] font-semibold px-2.5 py-1 rounded-md shadow-2xs border border-slate-200/50 cursor-pointer";
             modeCalculBtn.className = "text-slate-500 hover:text-slate-800 text-[11px] font-medium px-2.5 py-1 rounded-md cursor-pointer";
+            renderHeadAndTailPreview();
         });
 
         modeCalculBtn.addEventListener('click', () => {
             isAmountCalculMode = true;
             amountSimpleGroup.classList.add('hidden');
             amountCalculGroup.classList.remove('hidden');
-            
             modeCalculBtn.className = "bg-white text-slate-800 text-[11px] font-semibold px-2.5 py-1 rounded-md shadow-2xs border border-slate-200/50 cursor-pointer";
             modeSimpleBtn.className = "text-slate-500 hover:text-slate-800 text-[11px] font-medium px-2.5 py-1 rounded-md cursor-pointer";
+            renderHeadAndTailPreview();
         });
+
+        colLabel.addEventListener('change', renderHeadAndTailPreview);
+        colAmount.addEventListener('change', renderHeadAndTailPreview);
+        colDebit.addEventListener('change', renderHeadAndTailPreview);
+        colCredit.addEventListener('change', renderHeadAndTailPreview);
 
         // Validations Fields
         paramPeriode.addEventListener('blur', () => {
@@ -400,7 +417,8 @@
                 }
 
                 populateSelects(headers, missingHeaderDetected);
-                renderPreview(headers, globalData.slice(0, 10));
+                analyzeAccountLengths();
+                renderHeadAndTailPreview();
                 mappingAndPreview.classList.remove('hidden');
                 lucide.createIcons();
             };
@@ -433,13 +451,119 @@
             }
         }
 
-        function renderPreview(headersList, rows) {
-            tableHeader.innerHTML = headersList.map(h => `<th class="px-4 py-2 border-b border-slate-200 font-semibold">${h}</th>`).join('');
-            tableBody.innerHTML = rows.map(row => {
+        // --- ALGORITHME DE CALCUL DE LARGEUR AUTOMATIQUE ---
+        function analyzeAccountLengths() {
+            if (globalData.length === 0) return;
+
+            const accIdx = parseInt(colAccount.value);
+            const accIdx2 = parseInt(colAccount2.value);
+            const sep = concatSeparator.value;
+            let maxLength = 0;
+
+            globalData.forEach(row => {
+                let account = (row[accIdx] || "").toString().trim();
+                if (isConcatActive && accIdx !== accIdx2) {
+                    let secondPart = (row[accIdx2] || "").toString().trim();
+                    if (secondPart) account += sep + secondPart;
+                }
+                if (account.length > maxLength) {
+                    maxLength = account.length;
+                }
+            });
+
+            // Mise à jour visuelle du Badge
+            accountLenBadge.textContent = `Max source: ${maxLength} car.`;
+            
+            // Logique intelligente d'ajustement
+            if (maxLength > 0) {
+                if (maxLength < 20) {
+                    // Si c'est petit, on laisse la valeur par défaut sécurisée à 20
+                    fixedWidthInput.value = 20;
+                    accountLenBadge.className = "text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-800";
+                } else {
+                    // Si ça déborde, on passe au max trouvé + une marge de lisibilité (+4)
+                    fixedWidthInput.value = maxLength + 4;
+                    accountLenBadge.className = "text-[10px] px-2 py-0.5 rounded-full font-semibold bg-amber-100 text-amber-800 animate-pulse";
+                }
+            }
+        }
+
+        // --- MINI-MOTEUR APERÇU HEAD & TAIL (DÉBUT & FIN) ---
+        function renderHeadAndTailPreview() {
+            if (globalData.length === 0) return;
+
+            // En-têtes du tableau d'aperçu virtuel
+            tableHeader.innerHTML = `
+                <th class="px-4 py-2 border-b border-slate-200 font-semibold bg-slate-100">Ligne source</th>
+                <th class="px-4 py-2 border-b border-slate-200 font-semibold bg-slate-100">N° Compte (Résultant)</th>
+                <th class="px-4 py-2 border-b border-slate-200 font-semibold bg-slate-100">Libellé</th>
+                <th class="px-4 py-2 border-b border-slate-200 font-semibold bg-slate-100">Montant Calculé</th>
+            `;
+
+            const accIdx = parseInt(colAccount.value);
+            const accIdx2 = parseInt(colAccount2.value);
+            const lblIdx = parseInt(colLabel.value);
+            const amtSimpleIdx = parseInt(colAmount.value);
+            const debIdx = parseInt(colDebit.value);
+            const credIdx = parseInt(colCredit.value);
+            const sep = concatSeparator.value;
+
+            // Fonction interne pour générer la structure d'une ligne d'aperçu
+            function makeRowHtml(realIndex, rowData) {
+                let account = (rowData[accIdx] || "").toString().trim();
+                if (isConcatActive && accIdx !== accIdx2) {
+                    let secondPart = (rowData[accIdx2] || "").toString().trim();
+                    if (secondPart) account += sep + secondPart;
+                }
+                const label = (rowData[lblIdx] || "").toString().trim();
+                
+                let amtRaw = 0;
+                if (!isAmountCalculMode) {
+                    amtRaw = cleanSingleValueToFloat(rowData[amtSimpleIdx]);
+                } else {
+                    let d = cleanSingleValueToFloat(rowData[debIdx]);
+                    let c = cleanSingleValueToFloat(rowData[credIdx]);
+                    amtRaw = d - c;
+                }
+                const displayAmt = amtRaw.toFixed(2);
+
                 return `<tr class="hover:bg-slate-50/80 transition-colors">
-                    ${headersList.map((_, idx) => `<td class="px-4 py-2 border-b border-slate-100">${row[idx] !== undefined ? row[idx] : ''}</td>`).join('')}
+                    <td class="px-4 py-1.5 border-b border-slate-100 font-mono text-xs text-slate-400">#${realIndex + 1}</td>
+                    <td class="px-4 py-1.5 border-b border-slate-100 font-semibold text-slate-900">${account || '<span class="text-rose-400 italic">vide</span>'}</td>
+                    <td class="px-4 py-1.5 border-b border-slate-100 text-slate-600">${label}</td>
+                    <td class="px-4 py-1.5 border-b border-slate-100 font-mono ${amtRaw < 0 ? 'text-rose-600 font-semibold' : 'text-slate-700'}">${displayAmt}</td>
                 </tr>`;
-            }).join('');
+            }
+
+            let fullHtml = "";
+
+            // Cas 1 : Moins de 10 lignes dans le fichier -> On affiche tout normalement
+            if (globalData.length <= 10) {
+                globalData.forEach((row, idx) => { fullHtml += makeRowHtml(idx, row); });
+            } 
+            // Cas 2 : Plus de 10 lignes -> Logique Head (5) & Tail (5)
+            else {
+                // Les 5 premières lignes
+                for (let i = 0; i < 5; i++) {
+                    fullHtml += makeRowHtml(i, globalData[i]);
+                }
+                // Ligne de coupure visuelle au milieu
+                const skippedCount = globalData.length - 10;
+                fullHtml += `
+                    <tr class="bg-slate-50/50">
+                        <td colspan="4" class="px-4 py-2 text-center text-xs font-medium text-slate-400 border-y border-dashed border-slate-200 bg-slate-100/50">
+                            <i data-lucide="unfold-vertical" class="w-3.5 h-3.5 inline mr-1 text-slate-400"></i> ... [ ${skippedCount} lignes intermédiaires masquées pour la lisibilité ] ...
+                        </td>
+                    </tr>
+                `;
+                // Les 5 dernières lignes
+                for (let i = globalData.length - 5; i < globalData.length; i++) {
+                    fullHtml += makeRowHtml(i, globalData[i]);
+                }
+            }
+
+            tableBody.innerHTML = fullHtml;
+            lucide.createIcons();
         }
 
         function formatFixedLength(text, length) {
@@ -447,7 +571,6 @@
             return str.length >= length ? str.substring(0, length) : str.padEnd(length, " ");
         }
 
-        // Nettoie de manière robuste une valeur numérique isolée
         function cleanSingleValueToFloat(rawVal) {
             if (rawVal === undefined || rawVal === null) return 0;
             let str = rawVal.toString().trim();
@@ -475,7 +598,6 @@
             
             const accIdx = parseInt(colAccount.value);
             const accIdx2 = parseInt(colAccount2.value);
-            const labelIdx = parseInt(colLabel.value);
             const amtSimpleIdx = parseInt(colAmount.value);
             const debIdx = parseInt(colDebit.value);
             const credIdx = parseInt(colCredit.value);
@@ -486,7 +608,6 @@
             let outputContent = `AA${codeBm}F${periode} ${targetDecimal}${width}EUR\n`;
 
             globalData.forEach(row => {
-                // 1. Logique de Concaténation de Compte
                 let account = (row[accIdx] || "").toString().trim();
                 if (isConcatActive && accIdx !== accIdx2) {
                     let secondPart = (row[accIdx2] || "").toString().trim();
@@ -494,14 +615,13 @@
                 }
                 if (!account) return; 
 
-                // 2. Logique de Calcul du Montant (Simple vs Débit/Crédit)
                 let finalAmountRaw = 0;
                 if (!isAmountCalculMode) {
                     finalAmountRaw = row[amtSimpleIdx];
                 } else {
                     let d = cleanSingleValueToFloat(row[debIdx]);
                     let c = cleanSingleValueToFloat(row[credIdx]);
-                    finalAmountRaw = d - c; // Formule comptable standard
+                    finalAmountRaw = d - c; 
                 }
 
                 const partAccount = formatFixedLength(account, width);
