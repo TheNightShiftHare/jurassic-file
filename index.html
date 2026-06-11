@@ -14,7 +14,7 @@
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <i data-lucide="calculator" class="w-7 h-7 text-indigo-600"></i>
-                <h1 class="text-xl font-bold tracking-tight text-slate-900">ComptaConverter <span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-full border border-indigo-100 ml-2">v1.4</span></h1>
+                <h1 class="text-xl font-bold tracking-tight text-slate-900">ComptaConverter <span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-full border border-indigo-100 ml-2">v1.5</span></h1>
             </div>
             <div class="text-sm text-slate-500 flex items-center gap-2">
                 <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i> Traitement 100% local
@@ -87,7 +87,7 @@
                             <span class="text-[10px] text-slate-400 block mt-0.5">Nombre de caractères max</span>
                         </div>
                         <div class="flex flex-col h-full justify-between">
-                            <label class="block text-xs font-medium text-slate-600 mb-2">Séparateur décimal</label>
+                            <label class="block text-xs font-medium text-slate-600 mb-2">Séparateur décimal généré</label>
                             <div class="flex items-center space-x-3 mt-1.5">
                                 <span id="labelComma" class="text-xs font-bold text-indigo-600">Virgule ( , )</span>
                                 <button type="button" id="toggleDecimal" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-indigo-600 transition-colors duration-200 ease-in-out focus:outline-none" role="switch" aria-checked="false">
@@ -95,7 +95,7 @@
                                 </button>
                                 <span id="labelPoint" class="text-xs font-medium text-slate-400">Point ( . )</span>
                             </div>
-                            <span class="text-[10px] text-slate-400 block mt-2">Impacte la ligne d'en-tête</span>
+                            <span class="text-[10px] text-slate-400 block mt-2">Impacte l'en-tête et les montants</span>
                         </div>
                     </div>
                 </div>
@@ -161,8 +161,8 @@
         lucide.createIcons();
 
         // Regex de validation
-        const regexPeriode = /^(0[1-9]|1[0-2])[0-9]{2}$/; // MMAA (01 à 12 suivi de 2 chiffres)
-        const regexCodeBm = /^[A-Z][0-9]{5}$/;           // 1 Lettre Majuscule + 5 Chiffres
+        const regexPeriode = /^(0[1-9]|1[0-2])[0-9]{2}$/; 
+        const regexCodeBm = /^[A-Z][0-9]{5}$/;           
 
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('fileInput');
@@ -222,7 +222,7 @@
             const value = paramPeriode.value.trim().toUpperCase();
             paramPeriode.value = value;
             if (value && !regexPeriode.test(value)) {
-                alert("Format Période Incorrect !\n\nLa période doit être au format MMAA (ex: '0526' pour mai 2026).\nVeuillez corriger votre saisie.");
+                alert("Format Période Incorrect !\n\nLa période doit être au format MMAA (ex: '0526').");
                 paramPeriode.classList.add('border-rose-500', 'bg-rose-50', 'text-rose-900');
             } else {
                 paramPeriode.classList.remove('border-rose-500', 'bg-rose-50', 'text-rose-900');
@@ -233,25 +233,24 @@
             const value = paramCodeBm.value.trim().toUpperCase();
             paramCodeBm.value = value;
             if (value && !regexCodeBm.test(value)) {
-                alert("Format Code Site Incorrect !\n\nLe Code Site doit comporter une lettre majuscule suivie de 5 chiffres (ex: 'K12458').\nVeuillez corriger votre saisie.");
+                alert("Format Code Site Incorrect !\n\nLe Code Site doit comporter une lettre majuscule suivie de 5 chiffres (ex: 'K12458').");
                 paramCodeBm.classList.add('border-rose-500', 'bg-rose-50', 'text-rose-900');
             } else {
                 paramCodeBm.classList.remove('border-rose-500', 'bg-rose-50', 'text-rose-900');
             }
         });
 
-        // Fonction globale de vérification avant export
         function validateInputsBeforeExport() {
             const periode = paramPeriode.value.trim().toUpperCase();
             const codeBm = paramCodeBm.value.trim().toUpperCase();
 
             if (!periode || !codeBm) {
-                alert("Champs Obligatoires Manquants !\n\nLa Période ET le Code Site doivent être renseignés pour pouvoir générer et exporter les fichiers.");
+                alert("Champs Obligatoires Manquants !\n\nLa Période ET le Code Site doivent être renseignés.");
                 return false;
             }
 
             if (!regexPeriode.test(periode) || !regexCodeBm.test(codeBm)) {
-                alert("Erreur de Format !\n\nCertains paramètres du Header contiennent des erreurs de format.\nMerci de respecter les formats requis (Période : MMAA et Code Site : LNNNNN) avant d'exporter.");
+                alert("Erreur de Format !\n\nMerci de corriger les champs en rouge avant l'exportation.");
                 return false;
             }
 
@@ -338,36 +337,95 @@
             return str.padEnd(length, " ");
         }
 
+        /**
+         * Nettoie et formate le montant d'origine de manière ultra-robuste à 2 décimales
+         */
+        function parseAndCleanAmount(rawVal, targetDecimalSeparator, sourceAnalysis) {
+            if (rawVal === undefined || rawVal === null) return "0" + targetDecimalSeparator + "00";
+            
+            let str = rawVal.toString().trim();
+            if (!str) return "0" + targetDecimalSeparator + "00";
+
+            // Détection et retrait des formats exotiques (ex: séparateurs de milliers anglo-saxons ou espaces)
+            // Si la chaîne contient à la fois une virgule ET un point (ex: -123,456.78 ou -123.456,78)
+            if (str.includes(',') && str.includes('.')) {
+                if (str.indexOf(',') < str.indexOf('.')) {
+                    // Format US : les virgules sont des milliers, on les vire
+                    str = str.replace(/,/g, '');
+                } else {
+                    // Format Européen alternatif : les points sont des milliers
+                    str = str.replace(/\./g, '').replace(',', '.');
+                }
+            } else {
+                // S'il n'y a qu'un seul type de séparateur mais répété (ex: 1 234 567 ou format espace)
+                str = str.replace(/\s/g, ''); // Enlever tous les espaces de milliers
+            }
+
+            // Si à ce stade il reste une virgule unique, on la passe temporairement en point pour le calcul JS
+            let standardStr = str.replace(',', '.');
+            
+            let num = parseFloat(standardStr);
+            if (isNaN(num)) return "0" + targetDecimalSeparator + "00";
+
+            // Génération stricte à 2 décimales via le moteur JS (qui utilise le point)
+            let fixedStr = num.toFixed(2); // ex: "-154000.00" ou "22875.34"
+
+            // Remplacement final du point par le séparateur configuré par l'utilisateur (Target)
+            if (targetDecimalSeparator === ',') {
+                fixedStr = fixedStr.replace('.', ',');
+            }
+            return fixedStr;
+        }
+
         // Export du fichier Montants
         btnExportTxt.addEventListener('click', () => {
             const validParams = validateInputsBeforeExport();
-            if (!validParams) return; // Stoppe l'export si invalide
+            if (!validParams) return;
 
             const { periode, codeBm } = validParams;
             const accIdx = parseInt(colAccount.value);
             const amtIdx = parseInt(colAmount.value);
             const width = parseInt(fixedWidthInput.value) || 20;
             
-            // Détermination du caractère séparateur selon l'état du toggle
-            const charDecimal = usePointDecimal ? "." : ",";
+            const targetDecimal = usePointDecimal ? "." : ",";
+
+            // --- ANALYSE DE LA COHÉRENCE DU SÉPARATEUR SOURCE ---
+            let pointCount = 0;
+            let commaCount = 0;
+            
+            globalData.forEach(row => {
+                const val = (row[amtIdx] || "").toString();
+                if (val.includes('.')) pointCount++;
+                if (val.includes(',')) commaCount++;
+            });
+
+            const sourceUsesPoint = (pointCount > commaCount);
+            
+            // Si incohérence détectée : Source utilise le Point alors que l'utilisateur veut la Virgule
+            if (sourceUsesPoint && targetDecimal === ',') {
+                alert(`Information sur les montants :\n\nLa balance source semble utiliser le POINT comme séparateur décimal.\nLe choix pour le fichier généré est la VIRGULE.\n\nTous les montants vont être convertis automatiquement au format choisi avec 2 décimales.`);
+            } 
+            // Inversement : Source utilise la Virgule alors que l'utilisateur demande le Point
+            else if (!sourceUsesPoint && commaCount > 0 && targetDecimal === '.') {
+                alert(`Information sur les montants :\n\nLa balance source semble utiliser la VIRGULE comme séparateur décimal.\nLe choix pour le fichier généré est le POINT.\n\nTous les montants vont être convertis automatiquement au format choisi avec 2 décimales.`);
+            }
 
             let outputContent = "";
-            
-            // 1. Ligne d'en-tête (Header) dynamique avec le séparateur choisi
-            outputContent += `AA${codeBm}F${periode} ${charDecimal}${width}EUR\n`;
+            outputContent += `AA${codeBm}F${periode} ${targetDecimal}${width}EUR\n`;
 
-            // 2. Corps du fichier
             globalData.forEach(row => {
                 const account = (row[accIdx] || "").toString().trim();
-                let amount = (row[amtIdx] || "").toString().trim();
+                let rawAmount = row[amtIdx];
 
                 if (!account) return; 
                 
                 const partAccount = formatFixedLength(account, width);
-                outputContent += `${partAccount}${amount}\n`;
+                // Utilisation de la fonction de nettoyage et formatage à 2 décimales
+                const formattedAmount = parseAndCleanAmount(rawAmount, targetDecimal);
+                
+                outputContent += `${partAccount}${formattedAmount}\n`;
             });
 
-            // 3. Ligne de fin (Footer)
             outputContent += `XX${codeBm}F${periode}`;
 
             downloadBlob(outputContent, `balance_montants_${periode}.txt`, "text/plain");
@@ -376,7 +434,7 @@
         // Export du Plan de Comptes
         btnExportPlan.addEventListener('click', () => {
             const validParams = validateInputsBeforeExport();
-            if (!validParams) return; // Stoppe l'export si invalide
+            if (!validParams) return;
 
             const { periode } = validParams;
             const accIdx = parseInt(colAccount.value);
