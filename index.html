@@ -14,7 +14,7 @@
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <i data-lucide="calculator" class="w-7 h-7 text-indigo-600"></i>
-                <h1 class="text-xl font-bold tracking-tight text-slate-900">ComptaConverter <span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-full border border-indigo-100 ml-2">v1.5</span></h1>
+                <h1 class="text-xl font-bold tracking-tight text-slate-900">ComptaConverter <span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-full border border-indigo-100 ml-2">v1.7</span></h1>
             </div>
             <div class="text-sm text-slate-500 flex items-center gap-2">
                 <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i> Traitement 100% local
@@ -66,6 +66,11 @@
                     <h2 class="text-lg font-semibold text-slate-900">Configuration des variables & colonnes</h2>
                 </div>
 
+                <div id="noHeaderAlert" class="hidden bg-blue-50 border border-blue-200 p-3 rounded-lg text-sm text-blue-800 flex items-center gap-2">
+                    <i data-lucide="info" class="w-5 h-5 text-blue-600 shrink-0"></i>
+                    <span><strong>Aucune ligne d'en-tête détectée :</strong> Le fichier semble commencer directement par des chiffres. Des repères génériques (Colonne A, B, C...) ont été créés automatiquement pour vous permettre de faire le mapping.</span>
+                </div>
+
                 <div class="bg-amber-50/60 border border-amber-200 p-4 rounded-xl">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-amber-800 mb-3 flex items-center gap-1.5">
                         <i data-lucide="sliders-horizontal" class="w-4 h-4"></i> Paramètres du bloc d'en-tête (Header)
@@ -84,7 +89,7 @@
                         <div>
                             <label class="block text-xs font-medium text-slate-600 mb-1">Largeur fixe "Compte"</label>
                             <input type="number" id="fixedWidth" value="20" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500 font-mono">
-                            <span class="text-[10px] text-slate-400 block mt-0.5">Nombre de caractères max</span>
+                            <span class="text-[10px] text-slate-400 block mt-2">Nombre de caractères max</span>
                         </div>
                         <div class="flex flex-col h-full justify-between">
                             <label class="block text-xs font-medium text-slate-600 mb-2">Séparateur décimal généré</label>
@@ -170,6 +175,7 @@
         const fileName = document.getElementById('fileName');
         const resetBtn = document.getElementById('resetBtn');
         const mappingAndPreview = document.getElementById('mappingAndPreview');
+        const noHeaderAlert = document.getElementById('noHeaderAlert');
         
         const paramPeriode = document.getElementById('paramPeriode');
         const paramCodeBm = document.getElementById('paramCodeBm');
@@ -180,7 +186,7 @@
         const toggleKnob = document.getElementById('toggleKnob');
         const labelComma = document.getElementById('labelComma');
         const labelPoint = document.getElementById('labelPoint');
-        let usePointDecimal = false; // False = Virgule par défaut, True = Point
+        let usePointDecimal = false; 
 
         const colAccount = document.getElementById('colAccount');
         const colLabel = document.getElementById('colLabel');
@@ -199,7 +205,6 @@
         toggleDecimal.addEventListener('click', () => {
             usePointDecimal = !usePointDecimal;
             if (usePointDecimal) {
-                // Mode Point
                 toggleDecimal.classList.replace('bg-indigo-600', 'bg-slate-400');
                 toggleKnob.classList.replace('translate-x-0', 'translate-x-5');
                 labelComma.classList.replace('font-bold', 'font-medium');
@@ -207,7 +212,6 @@
                 labelPoint.classList.replace('font-medium', 'font-bold');
                 labelPoint.classList.replace('text-slate-400', 'text-indigo-600');
             } else {
-                // Mode Virgule (Défaut)
                 toggleDecimal.classList.replace('bg-slate-400', 'bg-indigo-600');
                 toggleKnob.classList.replace('translate-x-5', 'translate-x-0');
                 labelPoint.classList.replace('font-bold', 'font-medium');
@@ -217,7 +221,7 @@
             }
         });
 
-        // Validations à la perte de focus (blur)
+        // Validations
         paramPeriode.addEventListener('blur', () => {
             const value = paramPeriode.value.trim().toUpperCase();
             paramPeriode.value = value;
@@ -273,6 +277,17 @@
 
         resetBtn.addEventListener('click', resetApp);
 
+        // Convertit un index de colonne (0, 1, 2...) en lettre Excel (A, B, C... AA, AB...)
+        function getExcelColumnLabel(index) {
+            let label = "";
+            let temp = index;
+            while (temp >= 0) {
+                label = String.fromCharCode((temp % 26) + 65) + label;
+                temp = Math.floor(temp / 26) - 1;
+            }
+            return `Colonne ${label}`;
+        }
+
         function handleFileSelect() {
             const file = fileInput.files[0];
             if (!file) return;
@@ -295,33 +310,67 @@
                     return;
                 }
 
-                headers = jsonData[0];
-                globalData = jsonData.slice(1);
+                let firstRow = jsonData[0];
+                
+                // --- ALGORITHME DE DÉTECTION D'ENTÊTE ---
+                // On regarde si la première ligne contient des valeurs qui ressemblent fort à des données pures.
+                let missingHeaderDetected = false;
+                
+                for (let i = 0; i < Math.min(firstRow.length, 3); i++) {
+                    const cellVal = (firstRow[i] || "").toString().trim();
+                    // Si la cellule est un grand nombre (ex: compte 101300) ou contient des décimales comptables d'entrée, c'est de la donnée !
+                    if (cellVal !== "" && !isNaN(cellVal.replace(',', '.')) && cellVal.replace(/\s/g, '').length >= 4) {
+                        missingHeaderDetected = true;
+                        break;
+                    }
+                }
 
-                populateSelects(headers);
+                if (missingHeaderDetected) {
+                    // Pas d'en-tête ! On fabrique des en-têtes virtuelles [Colonne A, Colonne B...]
+                    headers = firstRow.map((_, idx) => getExcelColumnLabel(idx));
+                    // Très important : La première ligne est une vraie donnée, on ne l'élimine pas !
+                    globalData = jsonData; 
+                    noHeaderAlert.classList.remove('hidden');
+                } else {
+                    // En-tête classique présente
+                    headers = firstRow.map((h, idx) => h ? h.toString().trim() : getExcelColumnLabel(idx));
+                    globalData = jsonData.slice(1);
+                    noHeaderAlert.classList.add('hidden');
+                }
+
+                populateSelects(headers, missingHeaderDetected);
                 renderPreview(headers, globalData.slice(0, 10));
                 
                 mappingAndPreview.classList.remove('hidden');
+                lucide.createIcons();
             };
             reader.readAsArrayBuffer(file);
         }
 
-        function populateSelects(headersList) {
-            const optionsHtml = headersList.map((h, idx) => `<option value="${idx}">${h || `Colonne ${idx + 1}`}</option>`).join('');
+        function populateSelects(headersList, missingHeaderDetected) {
+            const optionsHtml = headersList.map((h, idx) => `<option value="${idx}">${h}</option>`).join('');
             colAccount.innerHTML = optionsHtml;
             colLabel.innerHTML = optionsHtml;
             colAmount.innerHTML = optionsHtml;
 
-            headersList.forEach((h, idx) => {
-                const title = h.toString().toLowerCase();
-                if (title.includes('compte') || title.includes('n°') || title.includes('general')) colAccount.value = idx;
-                if (title.includes('libellé') || title.includes('libelle') || title.includes('intitulé')) colLabel.value = idx;
-                if (title.includes('solde') || title.includes('montant') || title.includes('debit') || title.includes('crédit')) colAmount.value = idx;
-            });
+            // Si les en-têtes sont réelles, on tente le pré-positionnement intelligent
+            if (!missingHeaderDetected) {
+                headersList.forEach((h, idx) => {
+                    const title = h.toLowerCase();
+                    if (title.includes('compte') || title.includes('n°') || title.includes('general')) colAccount.value = idx;
+                    if (title.includes('libellé') || title.includes('libelle') || title.includes('intitulé')) colLabel.value = idx;
+                    if (title.includes('solde') || title.includes('montant') || title.includes('debit') || title.includes('crédit')) colAmount.value = idx;
+                });
+            } else {
+                // S'il n'y a pas d'en-tête, on initialise arbitrairement sur les colonnes A, B, C (index 0, 1, 2) s'il y en a assez
+                if (headersList.length > 0) colAccount.value = 0;
+                if (headersList.length > 1) colLabel.value = 1;
+                if (headersList.length > 2) colAmount.value = 2;
+            }
         }
 
         function renderPreview(headersList, rows) {
-            tableHeader.innerHTML = headersList.map(h => `<th class="px-4 py-2 border-b border-slate-200 font-semibold">${h || '-'}</th>`).join('');
+            tableHeader.innerHTML = headersList.map(h => `<th class="px-4 py-2 border-b border-slate-200 font-semibold">${h}</th>`).join('');
             tableBody.innerHTML = rows.map(row => {
                 return `<tr class="hover:bg-slate-50/80 transition-colors">
                     ${headersList.map((_, idx) => `<td class="px-4 py-2 border-b border-slate-100">${row[idx] !== undefined ? row[idx] : ''}</td>`).join('')}
@@ -337,40 +386,28 @@
             return str.padEnd(length, " ");
         }
 
-        /**
-         * Nettoie et formate le montant d'origine de manière ultra-robuste à 2 décimales
-         */
-        function parseAndCleanAmount(rawVal, targetDecimalSeparator, sourceAnalysis) {
+        function parseAndCleanAmount(rawVal, targetDecimalSeparator) {
             if (rawVal === undefined || rawVal === null) return "0" + targetDecimalSeparator + "00";
             
             let str = rawVal.toString().trim();
             if (!str) return "0" + targetDecimalSeparator + "00";
 
-            // Détection et retrait des formats exotiques (ex: séparateurs de milliers anglo-saxons ou espaces)
-            // Si la chaîne contient à la fois une virgule ET un point (ex: -123,456.78 ou -123.456,78)
             if (str.includes(',') && str.includes('.')) {
                 if (str.indexOf(',') < str.indexOf('.')) {
-                    // Format US : les virgules sont des milliers, on les vire
                     str = str.replace(/,/g, '');
                 } else {
-                    // Format Européen alternatif : les points sont des milliers
                     str = str.replace(/\./g, '').replace(',', '.');
                 }
             } else {
-                // S'il n'y a qu'un seul type de séparateur mais répété (ex: 1 234 567 ou format espace)
-                str = str.replace(/\s/g, ''); // Enlever tous les espaces de milliers
+                str = str.replace(/\s/g, ''); 
             }
 
-            // Si à ce stade il reste une virgule unique, on la passe temporairement en point pour le calcul JS
             let standardStr = str.replace(',', '.');
-            
             let num = parseFloat(standardStr);
             if (isNaN(num)) return "0" + targetDecimalSeparator + "00";
 
-            // Génération stricte à 2 décimales via le moteur JS (qui utilise le point)
-            let fixedStr = num.toFixed(2); // ex: "-154000.00" ou "22875.34"
+            let fixedStr = num.toFixed(2); 
 
-            // Remplacement final du point par le séparateur configuré par l'utilisateur (Target)
             if (targetDecimalSeparator === ',') {
                 fixedStr = fixedStr.replace('.', ',');
             }
@@ -389,7 +426,7 @@
             
             const targetDecimal = usePointDecimal ? "." : ",";
 
-            // --- ANALYSE DE LA COHÉRENCE DU SÉPARATEUR SOURCE ---
+            // Analyse de la cohérence
             let pointCount = 0;
             let commaCount = 0;
             
@@ -401,13 +438,10 @@
 
             const sourceUsesPoint = (pointCount > commaCount);
             
-            // Si incohérence détectée : Source utilise le Point alors que l'utilisateur veut la Virgule
             if (sourceUsesPoint && targetDecimal === ',') {
-                alert(`Information sur les montants :\n\nLa balance source semble utiliser le POINT comme séparateur décimal.\nLe choix pour le fichier généré est la VIRGULE.\n\nTous les montants vont être convertis automatiquement au format choisi avec 2 décimales.`);
-            } 
-            // Inversement : Source utilise la Virgule alors que l'utilisateur demande le Point
-            else if (!sourceUsesPoint && commaCount > 0 && targetDecimal === '.') {
-                alert(`Information sur les montants :\n\nLa balance source semble utiliser la VIRGULE comme séparateur décimal.\nLe choix pour le fichier généré est le POINT.\n\nTous les montants vont être convertis automatiquement au format choisi avec 2 décimales.`);
+                alert(`Information sur les montants :\n\nLa balance source semble utiliser le POINT comme séparateur décimal.\nLe choix pour le fichier généré est la VIRGULE.\n\nTous les montants vont être convertis automatiquement.`);
+            } else if (!sourceUsesPoint && commaCount > 0 && targetDecimal === '.') {
+                alert(`Information sur les montants :\n\nLa balance source semble utiliser la VIRGULE comme séparateur décimal.\nLe choix pour le fichier généré est le POINT.\n\nTous les montants vont être convertis automatiquement.`);
             }
 
             let outputContent = "";
@@ -420,7 +454,6 @@
                 if (!account) return; 
                 
                 const partAccount = formatFixedLength(account, width);
-                // Utilisation de la fonction de nettoyage et formatage à 2 décimales
                 const formattedAmount = parseAndCleanAmount(rawAmount, targetDecimal);
                 
                 outputContent += `${partAccount}${formattedAmount}\n`;
@@ -476,6 +509,7 @@
             dropzone.classList.remove('hidden');
             fileInfo.classList.add('hidden');
             mappingAndPreview.classList.add('hidden');
+            noHeaderAlert.classList.add('hidden');
         }
     </script>
 </body>
