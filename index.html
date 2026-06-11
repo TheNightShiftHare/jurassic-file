@@ -8,26 +8,22 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
-
-    <header class="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-10 shadow-sm w-full">
-        <div class="w-full flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <i data-lucide="calculator" class="w-7 h-7 text-indigo-600"></i>
-                <h1 class="text-xl font-bold tracking-tight text-slate-900">ComptaConverter <span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-full border border-indigo-100 ml-2">v1.9.1</span></h1>
-            </div>
-            <div class="text-sm text-slate-500 flex items-center gap-2">
-                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i> Traitement 100% local
-            </div>
-        </div>
-    </header>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col pt-4">
 
     <main class="flex-1 w-full p-4 md:p-6 space-y-6">
         
         <section class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
-            <div class="flex items-center space-x-2 mb-6">
-                <div class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">1</div>
-                <h2 class="text-lg font-semibold text-slate-900">Chargement de la balance</h2>
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                <div class="flex items-center space-x-2">
+                    <div class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">1</div>
+                    <h2 class="text-lg font-semibold text-slate-900">Chargement de la balance</h2>
+                </div>
+                <div class="flex items-center space-x-3 text-sm">
+                    <span class="text-xs bg-indigo-50 text-indigo-600 font-bold px-2.5 py-1 rounded-full border border-indigo-100">v2.0</span>
+                    <div class="text-slate-500 flex items-center gap-1.5 hidden sm:flex">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i> Traitement 100% local
+                    </div>
+                </div>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-6 gap-6 items-center">
@@ -189,11 +185,9 @@
                 <div class="overflow-x-auto border border-slate-200 rounded-lg w-full">
                     <table class="w-full text-left border-collapse text-sm min-w-full">
                         <thead>
-                            <tr id="tableHeader" class="bg-slate-100 border-b border-slate-200 text-slate-700 font-medium whitespace-nowrap">
-                                </tr>
+                            <tr id="tableHeader" class="bg-slate-100 border-b border-slate-200 text-slate-700 font-medium whitespace-nowrap"></tr>
                         </thead>
-                        <tbody id="tableBody" class="divide-y divide-slate-100 text-slate-600 whitespace-nowrap">
-                                </tbody>
+                        <tbody id="tableBody" class="divide-y divide-slate-100 text-slate-600 whitespace-nowrap"></tbody>
                     </table>
                 </div>
             </section>
@@ -218,7 +212,7 @@
         </div>
     </main>
 
-    <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-400 w-full">
+    <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-400 w-full mt-auto">
         Générateur de Fichiers Comptables à Largeur Fixe — Conçu pour un usage local rapide.
     </footer>
 
@@ -472,18 +466,15 @@
             }
         }
 
-        // --- RESTAURATION DE L'APERÇU FIÈLE DU FICHIER EXCEL SOURCE COMPLET ---
         function renderHeadAndTailPreview() {
             if (globalData.length === 0) return;
 
-            // En-tête de table : Colonne Index resserrée + Toutes les vraies colonnes du Excel source
             let headerHtml = `<th class="px-3 py-2 border-b border-slate-200 font-mono text-xs text-slate-400 bg-slate-100 w-12 text-center">Ligne</th>`;
             headers.forEach(h => {
                 headerHtml += `<th class="px-4 py-2 border-b border-slate-200 font-semibold bg-slate-100">${h}</th>`;
             });
             tableHeader.innerHTML = headerHtml;
 
-            // Fonction interne pour générer une ligne brute complète
             function makeSourceRowHtml(realIndex, rowData) {
                 let cellsHtml = `<td class="px-3 py-1.5 border-b border-slate-100 font-mono text-xs text-slate-400 bg-slate-50/50 w-12 text-center select-none">#${realIndex + 1}</td>`;
                 headers.forEach((_, colIdx) => {
@@ -495,17 +486,12 @@
 
             let fullHtml = "";
 
-            // Cas 1 : Petit fichier -> Affichage complet
             if (globalData.length <= 10) {
                 globalData.forEach((row, idx) => { fullHtml += makeSourceRowHtml(idx, row); });
-            } 
-            // Cas 2 : Grand fichier -> Head & Tail sur l'intégralité des colonnes d'origine
-            else {
-                // Head : 5 premières lignes
+            } else {
                 for (let i = 0; i < 5; i++) {
                     fullHtml += makeSourceRowHtml(i, globalData[i]);
                 }
-                // Coupure visuelle
                 const skippedCount = globalData.length - 10;
                 fullHtml += `
                     <tr class="bg-slate-100/40">
@@ -514,7 +500,6 @@
                         </td>
                     </tr>
                 `;
-                // Tail : 5 dernières lignes
                 for (let i = globalData.length - 5; i < globalData.length; i++) {
                     fullHtml += makeSourceRowHtml(i, globalData[i]);
                 }
@@ -628,7 +613,7 @@
 
         function resetApp() {
             fileInput.value = ""; headers = []; globalData = [];
-            dropzone.classList.remove('hidden'); fileInfo.classList.add('hidden'); mappingAndPreview.classList.add('hidden'); noHeaderAlert.classList.add('hidden');
+            dropzone.classList.remove('hidden'); fileInfo.classList.remove('hidden'); mappingAndPreview.classList.add('hidden'); noHeaderAlert.classList.add('hidden');
         }
     </script>
 </body>
