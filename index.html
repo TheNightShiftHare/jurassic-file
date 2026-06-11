@@ -14,10 +14,10 @@
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <i data-lucide="calculator" class="w-8 h-8 text-indigo-600"></i>
-                <h1 class="text-xl font-bold tracking-tight text-slate-900">ComptaConverter <span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-full border border-indigo-100 ml-2">v1.0</span></h1>
+                <h1 class="text-xl font-bold tracking-tight text-slate-900">ComptaConverter <span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-full border border-indigo-100 ml-2">v1.1</span></h1>
             </div>
             <div class="text-sm text-slate-500 flex items-center gap-2">
-                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i> Traitement 100% local (aucune donnée transférée)
+                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i> Traitement 100% local
             </div>
         </div>
     </header>
@@ -51,34 +51,47 @@
 
         <div id="mappingAndPreview" class="hidden space-y-6">
             
-            <section class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
-                <div class="flex items-center space-x-2 mb-4">
+            <section class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-6">
+                <div class="flex items-center space-x-2 border-b border-slate-100 pb-3">
                     <div class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">2</div>
-                    <h2 class="text-lg font-semibold text-slate-900">Configuration des colonnes & formats</h2>
+                    <h2 class="text-lg font-semibold text-slate-900">Configuration des variables & colonnes</h2>
+                </div>
+
+                <div class="bg-amber-50/60 border border-amber-200 p-4 rounded-xl">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-amber-800 mb-3 flex items-center gap-1.5">
+                        <i data-lucide="sliders-horizontal" class="w-4 h-4"></i> Paramètres du bloc d'en-tête (Header)
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Période (Format MMAA)</label>
+                            <input type="text" id="paramPeriode" placeholder="ex: 0526" maxlength="4" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500 placeholder:text-slate-400 uppercase font-mono">
+                            <span class="text-[10px] text-slate-400 block mt-0.5">0526 pour Mai 2026</span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Code Site (1 Lettre + 5 Chiffres)</label>
+                            <input type="text" id="paramCodeBm" placeholder="ex: K12456" maxlength="6" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500 placeholder:text-slate-400 uppercase font-mono">
+                            <span class="text-[10px] text-slate-400 block mt-0.5">Format strict: ex: K12456</span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Largeur fixe "Compte"</label>
+                            <input type="number" id="fixedWidth" value="20" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500 font-mono">
+                            <span class="text-[10px] text-slate-400 block mt-0.5">Nombre d'espaces max</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">N° de Compte</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Colonne N° de Compte</label>
                         <select id="colAccount" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500"></select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Libellé du compte</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Colonne Libellé</label>
                         <select id="colLabel" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500"></select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Montant à extraire</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Colonne Montant</label>
                         <select id="colAmount" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500"></select>
-                    </div>
-                </div>
-
-                <div class="mt-6 border-t border-slate-100 pt-4">
-                    <h3 class="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-1"><i data-lucide="sliders" class="w-4 h-4 text-slate-400"></i> Paramètres du fichier de sortie (.txt)</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
-                        <div>
-                            <label class="block text-xs text-slate-500 mb-1">Largeur fixe de la zone "Compte" (ex: 20)</label>
-                            <input type="number" id="fixedWidth" value="20" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:outline-indigo-500">
-                        </div>
                     </div>
                 </div>
             </section>
@@ -87,25 +100,25 @@
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-2">
                         <i data-lucide="eye" class="w-5 h-5 text-indigo-600"></i>
-                        <h2 class="text-lg font-semibold text-slate-900">Aperçu des données (10 premières lignes)</h2>
+                        <h2 class="text-lg font-semibold text-slate-900">Aperçu du Excel chargé (10 1ères lignes)</h2>
                     </div>
                 </div>
                 <div class="overflow-x-auto border border-slate-200 rounded-lg">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr id="tableHeader" class="bg-slate-100 border-b border-slate-200 text-slate-700 font-medium">
-                                </tr>
+                            <tr id="tableHeader" class="bg-slate-100 border-b border-slate-200 text-slate-700 font-medium"></tr>
                         </thead>
-                        <tbody id="tableBody" class="divide-y divide-slate-100 text-slate-600">
-                            </tbody>
+                        <tbody id="tableBody" class="divide-y divide-slate-100 text-slate-600"></tbody>
                     </table>
                 </div>
             </section>
 
             <section class="bg-slate-900 text-white p-6 rounded-xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="space-y-1 text-center sm:text-left">
-                    <h2 class="text-lg font-bold flex items-center justify-center sm:justify-start gap-2"><i data-lucide="package-open" class="text-amber-400 w-5 h-5"></i> Prêt pour l'exportation</h2>
-                    <p class="text-xs text-slate-400">Les fichiers générés respecteront l'alignement à largeur fixe configuré ci-dessus.</p>
+                    <h2 class="text-lg font-bold flex items-center justify-center sm:justify-start gap-2">
+                        <i data-lucide="package-open" class="text-amber-400 w-5 h-5"></i> Prêt pour l'exportation
+                    </h2>
+                    <p class="text-xs text-slate-400">Génération automatique des structures de fichiers (Header AA / Footer XX inclus).</p>
                 </div>
                 <div class="flex flex-wrap gap-3 w-full sm:w-auto justify-center">
                     <button id="btnExportTxt" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm">
@@ -118,7 +131,6 @@
             </section>
 
         </div>
-
     </main>
 
     <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-400 mt-12">
@@ -126,10 +138,8 @@
     </footer>
 
     <script>
-        // Initialisation de Lucide Icons
         lucide.createIcons();
 
-        // Éléments du DOM
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('fileInput');
         const fileInfo = document.getElementById('fileInfo');
@@ -137,10 +147,13 @@
         const resetBtn = document.getElementById('resetBtn');
         const mappingAndPreview = document.getElementById('mappingAndPreview');
         
+        const paramPeriode = document.getElementById('paramPeriode');
+        const paramCodeBm = document.getElementById('paramCodeBm');
+        const fixedWidthInput = document.getElementById('fixedWidth');
+
         const colAccount = document.getElementById('colAccount');
         const colLabel = document.getElementById('colLabel');
         const colAmount = document.getElementById('colAmount');
-        const fixedWidthInput = document.getElementById('fixedWidth');
         
         const tableHeader = document.getElementById('tableHeader');
         const tableBody = document.getElementById('tableBody');
@@ -148,15 +161,12 @@
         const btnExportTxt = document.getElementById('btnExportTxt');
         const btnExportPlan = document.getElementById('btnExportPlan');
 
-        // Variables globales pour stocker les données lues
         let headers = [];
         let globalData = [];
 
-        // Événements d'ouverture de fichier
         dropzone.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', handleFileSelect);
         
-        // Drag & Drop
         dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('border-indigo-500', 'bg-indigo-50/50'); });
         dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('border-indigo-500', 'bg-indigo-50/50'); });
         dropzone.addEventListener('drop', (e) => {
@@ -170,7 +180,6 @@
 
         resetBtn.addEventListener('click', resetApp);
 
-        // Traitement du fichier Excel
         function handleFileSelect() {
             const file = fileInput.files[0];
             if (!file) return;
@@ -183,12 +192,8 @@
             reader.onload = function(e) {
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, { type: 'array', defval: "" });
-                
-                // On prend la première feuille du classeur
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
-                
-                // Conversion en JSON (matrice de tableaux pour garder l'ordre des colonnes brutes)
                 const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
                 
                 if (jsonData.length === 0) {
@@ -197,27 +202,23 @@
                     return;
                 }
 
-                // Identification des entêtes (Première ligne non vide)
                 headers = jsonData[0];
-                globalData = jsonData.slice(1); // Le reste correspond aux lignes de données
+                globalData = jsonData.slice(1);
 
                 populateSelects(headers);
-                renderPreview(headers, globalData.slice(0, 10)); // Top 10 pour l'aperçu
+                renderPreview(headers, globalData.slice(0, 10));
                 
                 mappingAndPreview.classList.remove('hidden');
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // Remplir les listes déroulantes de choix de colonnes
         function populateSelects(headersList) {
             const optionsHtml = headersList.map((h, idx) => `<option value="${idx}">${h || `Colonne ${idx + 1}`}</option>`).join('');
-            
             colAccount.innerHTML = optionsHtml;
             colLabel.innerHTML = optionsHtml;
             colAmount.innerHTML = optionsHtml;
 
-            // Essayer de pré-sélectionner intelligemment
             headersList.forEach((h, idx) => {
                 const title = h.toString().toLowerCase();
                 if (title.includes('compte') || title.includes('n°') || title.includes('general')) colAccount.value = idx;
@@ -226,10 +227,8 @@
             });
         }
 
-        // Afficher le tableau d'aperçu
         function renderPreview(headersList, rows) {
             tableHeader.innerHTML = headersList.map(h => `<th class="px-4 py-2 border-b border-slate-200 font-semibold">${h || '-'}</th>`).join('');
-            
             tableBody.innerHTML = rows.map(row => {
                 return `<tr class="hover:bg-slate-50/80 transition-colors">
                     ${headersList.map((_, idx) => `<td class="px-4 py-2 border-b border-slate-100">${row[idx] !== undefined ? row[idx] : ''}</td>`).join('')}
@@ -237,8 +236,6 @@
             }).join('');
         }
 
-        // Fonction utilitaire pour formater en largeur fixe
-        // Aligne le texte à gauche, comble avec des espaces. Si le texte dépasse, il est tronqué.
         function formatFixedLength(text, length) {
             const str = (text !== undefined && text !== null) ? text.toString() : "";
             if (str.length >= length) {
@@ -247,39 +244,44 @@
             return str.padEnd(length, " ");
         }
 
-        // Déclencheurs d'exports
+        // Export du fichier Montants avec structure stricte Header / Lignes / Footer
         btnExportTxt.addEventListener('click', () => {
             const accIdx = parseInt(colAccount.value);
             const amtIdx = parseInt(colAmount.value);
             const width = parseInt(fixedWidthInput.value) || 20;
+            
+            // Récupération des nouvelles variables avec nettoyage (majuscules)
+            const periode = paramPeriode.value.trim().toUpperCase() || "0000";
+            const codeBm = paramCodeBm.value.trim().toUpperCase() || "X00000";
 
             let outputContent = "";
             
-            // Ligne d'en-tête technique qui définit où finit le numéro de compte
-            // Exemple de règle demandée : une info sur la 1ere ligne indiquant la coupure
-            outputContent += `INFO:SEPARATEUR:${width}\n`;
+            // 1. Ligne d'en-tête (Header) : AA + code_bm + F + periode + [espace],20EUR
+            outputContent += `AA${codeBm}F${periode} ,${width}EUR\n`;
 
+            // 2. Corps du fichier (Comptes + Montants)
             globalData.forEach(row => {
                 const account = (row[accIdx] || "").toString().trim();
                 let amount = (row[amtIdx] || "").toString().trim();
 
-                // On ignore les lignes complètement vides sur le numéro de compte
-                if (!account) return;
-
-                // Formatage propre du montant (Ex: force la virgule si nécessaire, ou conserve la valeur)
-                // Optionnel : tu peux ajuster si tu as besoin de nettoyer des caractères spécifiques
+                if (!account) return; // ignore les lignes vides
                 
                 const partAccount = formatFixedLength(account, width);
                 outputContent += `${partAccount}${amount}\n`;
             });
 
-            downloadBlob(outputContent, "balance_montants.txt", "text/plain");
+            // 3. Ligne de fin (Footer) : XX + code_bm + F + periode
+            outputContent += `XX${codeBm}F${periode}`;
+
+            downloadBlob(outputContent, `balance_montants_${periode}.txt`, "text/plain");
         });
 
+        // Export du Plan de Comptes (Garde l'ancienne structure ou similaire si besoin)
         btnExportPlan.addEventListener('click', () => {
             const accIdx = parseInt(colAccount.value);
             const lblIdx = parseInt(colLabel.value);
             const width = parseInt(fixedWidthInput.value) || 20;
+            const periode = paramPeriode.value.trim().toUpperCase() || "0000";
 
             let outputContent = "";
             outputContent += `INFO:SEPARATEUR:${width}\n`;
@@ -294,10 +296,9 @@
                 outputContent += `${partAccount}${label}\n`;
             });
 
-            downloadBlob(outputContent, "plan_comptable.txt", "text/plain");
+            downloadBlob(outputContent, `plan_comptable_${periode}.txt`, "text/plain");
         });
 
-        // Téléchargement du fichier généré
         function downloadBlob(content, filename, contentType) {
             const blob = new Blob([content], { type: contentType + ";charset=utf-8;" });
             const url = URL.createObjectURL(blob);
@@ -310,7 +311,6 @@
             URL.revokeObjectURL(url);
         }
 
-        // Réinitialiser l'application
         function resetApp() {
             fileInput.value = "";
             headers = [];
